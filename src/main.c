@@ -16,14 +16,14 @@ duk_double_t dummy_get_now(void)
   return 0.0;
 }
 
-static void native_fatal(void *udata, const char *msg)
+static void native_fatal(void* udata, const char* msg)
 {
   (void)udata;
   ksceKernelPrintf("*** FATAL ERROR: %s\n", (msg ? msg : "no message"));
   abort();
 }
 
-static duk_ret_t native_print(duk_context *ctx)
+static duk_ret_t native_print(duk_context* ctx)
 {
   duk_push_string(ctx, " ");
   duk_insert(ctx, 0);
@@ -33,24 +33,24 @@ static duk_ret_t native_print(duk_context *ctx)
   return 0;
 }
 
-static duk_ret_t duk_dlcall_wrapper(duk_context *ctx)
+static duk_ret_t duk_dlcall_wrapper(duk_context* ctx)
 {
   int argn = duk_get_top(ctx);
 
   duk_push_this(ctx);
   duk_push_current_function(ctx);
   duk_get_prop_string(ctx, -1, "pointer");
-  void *fn = duk_get_pointer(ctx, -1);
+  void* fn = duk_get_pointer(ctx, -1);
 
   ffi_cif cif;
 
-  ffi_type **args = malloc(argn * sizeof(ffi_type *));
-  void **values   = malloc(argn * sizeof(void *));
+  ffi_type** args = malloc(argn * sizeof(ffi_type*));
+  void** values   = malloc(argn * sizeof(void*));
 
   ffi_arg rc;
 
   uint32_t intvars[16];
-  char *charvars[16];
+  char* charvars[16];
 
   for (int i = 0; i < argn; ++i)
   {
@@ -63,7 +63,7 @@ static duk_ret_t duk_dlcall_wrapper(duk_context *ctx)
         break;
       case DUK_TYPE_STRING:
         args[i]     = &ffi_type_pointer;
-        charvars[i] = (char *)duk_get_string(ctx, i);
+        charvars[i] = (char*)duk_get_string(ctx, i);
         values[i]   = &(charvars[i]);
         break;
       case DUK_TYPE_OBJECT:
@@ -123,11 +123,11 @@ static duk_ret_t duk_dlcall_wrapper(duk_context *ctx)
   return DUK_RET_TYPE_ERROR;
 }
 
-static duk_ret_t duk_dlsym(duk_context *ctx)
+static duk_ret_t duk_dlsym(duk_context* ctx)
 {
-  void *func = NULL;
+  void* func = NULL;
 
-  const char *name = duk_require_string(ctx, 0);
+  const char* name = duk_require_string(ctx, 0);
   uint32_t libnid  = duk_to_uint32(ctx, 1);
   uint32_t funcnid = duk_to_uint32(ctx, 2);
 
@@ -141,9 +141,9 @@ static duk_ret_t duk_dlsym(duk_context *ctx)
   return 1;
 }
 
-static void do_duk(char *buf, uint32_t len)
+static void do_duk(char* buf, uint32_t len)
 {
-  duk_context *ctx = duk_create_heap(NULL, NULL, NULL, NULL, native_fatal);
+  duk_context* ctx = duk_create_heap(NULL, NULL, NULL, NULL, native_fatal);
 
   // globals
   // TODO: move to init funcs?
@@ -175,7 +175,7 @@ static void do_duk(char *buf, uint32_t len)
 static int g_thread_run    = 1;
 static SceUID g_thread_uid = -1;
 
-static int net_thread(SceSize args, void *argp)
+static int net_thread(SceSize args, void* argp)
 {
   SceUID server_sockfd = -1;
   SceUID client_sockfd = -1;
@@ -199,7 +199,7 @@ static int net_thread(SceSize args, void *argp)
     {
       ksceKernelDelayThread(2 * 1000 * 1000);
 
-      ret = ksceNetBind(server_sockfd, (SceNetSockaddr *)&serveraddr, sizeof(SceNetSockaddrIn));
+      ret = ksceNetBind(server_sockfd, (SceNetSockaddr*)&serveraddr, sizeof(SceNetSockaddrIn));
       if (ret < 0)
         continue;
 
@@ -210,11 +210,11 @@ static int net_thread(SceSize args, void *argp)
 
     while (g_thread_run && ret >= 0)
     {
-      client_sockfd = ksceNetAccept(server_sockfd, (SceNetSockaddr *)&clientaddr, &addrlen);
+      client_sockfd = ksceNetAccept(server_sockfd, (SceNetSockaddr*)&clientaddr, &addrlen);
       if (client_sockfd < 0)
         break;
 
-      char *buf = NULL;
+      char* buf = NULL;
       char recvbuf[1024];
 
       int32_t n     = 0;
@@ -248,7 +248,7 @@ static int net_thread(SceSize args, void *argp)
 
 // main
 void _start() __attribute__((weak, alias("module_start")));
-int module_start(SceSize args, void *argp)
+int module_start(SceSize args, void* argp)
 {
 
   ksceKernelPrintf("QUACK!\n");
@@ -271,7 +271,7 @@ int module_start(SceSize args, void *argp)
   return SCE_KERNEL_START_SUCCESS;
 }
 
-int module_stop(SceSize args, void *argp)
+int module_stop(SceSize args, void* argp)
 {
   if (g_thread_uid >= 0)
   {

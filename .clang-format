@@ -2,7 +2,7 @@
 BasedOnStyle: Webkit
 ---
 Language:                               Cpp
-PointerAlignment:                       Right
+PointerAlignment:                       Left
 BreakBeforeBraces:                      Allman
 AllowShortBlocksOnASingleLine:          false
 AllowShortFunctionsOnASingleLine:       Empty

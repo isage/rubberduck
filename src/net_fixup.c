@@ -43,13 +43,13 @@ const uint8_t patched_code[] = {
 
 SceUID g_netrecv_inject = -1;
 
-int (*sceKernelGetModuleInfoForKernel)(SceUID pid, SceUID modid, SceKernelModuleInfo *info) = NULL;
+int (*sceKernelGetModuleInfoForKernel)(SceUID pid, SceUID modid, SceKernelModuleInfo* info) = NULL;
 
 static int init_func()
 {
-  if (GetExport("SceKernelModulemgr", 0xC445FA63, 0xD269F915, (uintptr_t *)&sceKernelGetModuleInfoForKernel) < 0)
+  if (GetExport("SceKernelModulemgr", 0xC445FA63, 0xD269F915, (uintptr_t*)&sceKernelGetModuleInfoForKernel) < 0)
   {
-    if (GetExport("SceKernelModulemgr", 0x92C9FFC2, 0xDAA90093, (uintptr_t *)&sceKernelGetModuleInfoForKernel) < 0)
+    if (GetExport("SceKernelModulemgr", 0x92C9FFC2, 0xDAA90093, (uintptr_t*)&sceKernelGetModuleInfoForKernel) < 0)
     {
       return -1;
     }
@@ -61,7 +61,7 @@ int fixup_netrecv_bug(void)
 {
   SceKernelModuleInfo netps_info;
   SceUInt32 text_segidx = 0, text_base = 0, text_size = 0;
-  SceUInt32 *recvfrom_inner_addr = NULL;
+  SceUInt32* recvfrom_inner_addr = NULL;
   SceUID netps_id;
   SceInt32 res;
 
@@ -107,13 +107,13 @@ int fixup_netrecv_bug(void)
 
   // Search for pattern in SceNetPs text segment
   {
-    uint16_t *cur = (uint16_t *)text_base;
-    uint16_t *end = (uint16_t *)(text_base + text_size - sizeof(orig_code));
+    uint16_t* cur = (uint16_t*)text_base;
+    uint16_t* end = (uint16_t*)(text_base + text_size - sizeof(orig_code));
     while (cur < end)
     {
       if (memcmp(cur, orig_code, sizeof(orig_code)) == 0)
       {
-        recvfrom_inner_addr = (uint32_t *)cur;
+        recvfrom_inner_addr = (uint32_t*)cur;
         break;
       }
       cur++;

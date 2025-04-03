@@ -1,4 +1,5 @@
 #include "compat.h"
+
 #include "taihen_extra.h"
 
 #include <psp2kern/kernel/debug.h>
@@ -27,28 +28,28 @@ static SceUID heap = 0;
 
 static int errno = 0;
 
-void *(*sceKernelReallocHeapMemoryForKernel)(SceUID, void *, SceSize);
-void *(*sceKernelAllocHeapMemoryForDriver)(SceUID, SceSize);
-void *(*sceKernelFreeHeapMemoryForDriver)(SceUID, void *);
-SceUID (*sceKernelCreateHeapForDriver)(const char *name, SceSize size, SceKernelHeapCreateOpt *pOpt);
+void* (*sceKernelReallocHeapMemoryForKernel)(SceUID, void*, SceSize);
+void* (*sceKernelAllocHeapMemoryForDriver)(SceUID, SceSize);
+void* (*sceKernelFreeHeapMemoryForDriver)(SceUID, void*);
+SceUID (*sceKernelCreateHeapForDriver)(const char* name, SceSize size, SceKernelHeapCreateOpt* pOpt);
 int (*sceKernelShrinkHeapForDriver)(SceUID);
 
-int *__errno(void)
+int* __errno(void)
 {
   return &errno;
 }
 
-void *malloc(size_t size)
+void* malloc(size_t size)
 {
   return sceKernelAllocHeapMemoryForDriver(heap, size);
 }
 
-void free(void *ptr)
+void free(void* ptr)
 {
   sceKernelFreeHeapMemoryForDriver(heap, ptr);
 }
 
-void *realloc(void *ptr, size_t size)
+void* realloc(void* ptr, size_t size)
 {
   return sceKernelReallocHeapMemoryForKernel(heap, ptr, size);
 }
