@@ -244,7 +244,8 @@ static int net_thread(SceSize args, void *argp) {
 
             free(buf);
 
-            // TODO: shrink heap
+            // shrink heap
+            shrink_heap();
             ksceNetSocketClose(client_sockfd);
         }
 
