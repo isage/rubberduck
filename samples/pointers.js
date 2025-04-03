@@ -19,6 +19,17 @@ var ret = ksceKernelGetMemblockBase(block, base);
 ksceKernelPrintf('ret= 0x%08X\n', ret);
 ksceKernelPrintf('ptr= 0x%08X\n', base[0]);
 
-// direct memory access
+// direct memory access using single values
 write32(base[0], 0xDEADBABE);
 ksceKernelPrintf('value= 0x%08X\n', read32(base[0]));
+
+// direct memory access using buffers
+var data = new Uint32Array(2);
+data[0] = 0xCAFEBEEF;
+data[1] = 0xB00BDEAD;
+
+write32buffer(base[0], data);
+var out = new Uint32Array(2);
+read32buffer(base[0], out);
+
+ksceKernelPrintf('value= 0x%08X 0x%08X\n', out[0], out[1]);

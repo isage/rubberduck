@@ -17,6 +17,29 @@ you can use netcat to send your scripts: `cat script.js | nc 192.168.1.128 8108`
 
 See samples in, well, samples.
 
+## Api
+
+### resolveExport
+`ptr = resolveExport(<module name>, <libnid>, <funcnid>)`  
+resolves function by module name and library/function NID. Throws on error
+
+### read32/read16/read8
+`value = read32(<addr>)`  
+Reads single uint32/uint16/uint8 value from memory address
+
+### write32/write16/write8
+`write32(<addr>, <value>)`  
+Writes single uint32/uint16/uint8 value to memory address
+
+### read32buffer/read16buffer/read8buffer
+`read32(<addr>,<buffer>)`  
+Reads uint32/uint16/uint8 values from memory address into typed array
+
+### write32buffer/write16buffer/write8buffer
+`write32(<addr>)`  
+Writes uint32/uint16/uint8 typed array values to memory address
+
+
 ## License
 MIT, see LICENSE.md
 
