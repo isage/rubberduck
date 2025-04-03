@@ -140,14 +140,8 @@ static duk_ret_t duk_dlsym(duk_context *ctx)
     return 1;
 }
 
-typedef struct {
-  char* buf;
-  uint32_t len;
-} duk_args;
-
-static int do_duk(void *callargs)
+static void do_duk(char *buf, uint32_t len)
 {
-  duk_args* args = (duk_args*)callargs;
   duk_context *ctx = duk_create_heap(NULL, NULL, NULL, NULL, native_fatal);
 
   // globals
@@ -162,7 +156,7 @@ static int do_duk(void *callargs)
 
   // eval
 
-  duk_int_t rc = duk_peval_lstring(ctx, args->buf, args->len);
+  duk_int_t rc = duk_peval_lstring(ctx, buf, len);
   if (rc != 0)
   {
       ksceKernelPrintf("eval failed: %s\n", duk_safe_to_stacktrace(ctx, -1));
@@ -234,12 +228,7 @@ static int net_thread(SceSize args, void *argp) {
             }
             while (n > 0);
 
-            // duktape requires bigger stack
-            duk_args args = {
-                .buf = buf,
-                .len = total
-            };
-            ksceKernelRunWithStack(0x8000, do_duk, &args);
+            do_duk(buf, total);
 
             free(buf);
 
@@ -267,7 +256,7 @@ int module_start(SceSize args, void *argp)
 
   ksceKernelPrintf("QUACK! QUACK!\n");
 
-  g_thread_uid = ksceKernelCreateThread("quack_net_thread", net_thread, 0x3C, 0x1000, 0, 0x10000, 0);
+  g_thread_uid = ksceKernelCreateThread("quack_net_thread", net_thread, 0x3C, 0x8000, 0, 0x10000, 0);
   if (g_thread_uid < 0)
         return SCE_KERNEL_START_NO_RESIDENT;
 
