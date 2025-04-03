@@ -5,6 +5,7 @@
 
 #include <ffi.h>
 #include "compat.h"
+#include "memfuncs.h"
 #include "net_fixup.h"
 #include "duktape/duktape.h"
 
@@ -161,6 +162,8 @@ static int do_duk(void *callargs)
   duk_push_c_function(ctx, duk_dlsym, 3);
   duk_put_global_string(ctx, "resolveExport");
 
+  init_memfuncs(ctx);
+
   // eval
 
   duk_int_t rc = duk_peval_lstring(ctx, args->buf, args->len);
@@ -265,9 +268,6 @@ int module_start(SceSize args, void *argp)
   fixup_netrecv_bug();
 
   if (initCompat() < 0) return SCE_KERNEL_START_FAILED;
-
-  // duktape requires bigger stack
-//  ksceKernelRunWithStack(0x8000, do_duk, NULL);
 
   ksceKernelPrintf("QUACK! QUACK!\n");
 

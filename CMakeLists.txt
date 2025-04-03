@@ -14,6 +14,7 @@ include("${VITASDK}/share/vita.cmake" REQUIRED)
 add_executable(${PROJECT_NAME}
   src/main.c
   src/compat.c
+  src/memfuncs.c
   src/net_fixup.c
   src/duktape/duktape.c
   src/jmp/setjmp.S
