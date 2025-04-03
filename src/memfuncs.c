@@ -48,13 +48,13 @@ static duk_ret_t duk_write8(duk_context *ctx)
 void init_memfuncs(duk_context *ctx)
 {
 
-  duk_push_c_function(ctx, duk_read32, 2);
+  duk_push_c_function(ctx, duk_read32, 1);
   duk_put_global_string(ctx, "read32");
 
-  duk_push_c_function(ctx, duk_read16, 2);
+  duk_push_c_function(ctx, duk_read16, 1);
   duk_put_global_string(ctx, "read16");
 
-  duk_push_c_function(ctx, duk_read8, 2);
+  duk_push_c_function(ctx, duk_read8, 1);
   duk_put_global_string(ctx, "read8");
 
   duk_push_c_function(ctx, duk_write32, 2);
