@@ -16,6 +16,7 @@ add_executable(${PROJECT_NAME}
   src/compat.c
   src/memfuncs.c
   src/net_fixup.c
+  src/safeRW.S
   src/duktape/duktape.c
   src/jmp/setjmp.S
 )
