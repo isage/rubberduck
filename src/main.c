@@ -250,8 +250,7 @@ int module_start(SceSize args, void *argp)
 
   ksceKernelPrintf("QUACK!\n");
 
-  fixup_netrecv_bug();
-
+  if (fixup_netrecv_bug() < 0) return SCE_KERNEL_START_FAILED;
   if (initCompat() < 0) return SCE_KERNEL_START_FAILED;
 
   ksceKernelPrintf("QUACK! QUACK!\n");
