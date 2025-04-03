@@ -1,7 +1,6 @@
 #include <psp2kern/kernel/debug.h>
 #include <psp2kern/kernel/modulemgr.h>
 #include <psp2kern/netps.h>
-#include <taihen.h>
 
 #include <ffi.h>
 #include "compat.h"
@@ -9,10 +8,7 @@
 #include "net_fixup.h"
 #include "duktape/duktape.h"
 
-int module_get_export_func(SceUID pid, const char *modname, uint32_t libnid, uint32_t funcnid, uintptr_t *func);
-#define GetExport(modname, lib_nid, func_nid, func)                                                               \
-  module_get_export_func(KERNEL_PID, modname, lib_nid, func_nid, (uintptr_t *)func)
-
+#include "taihen_extra.h"
 
 // BINDINGS
 
@@ -144,14 +140,8 @@ static duk_ret_t duk_dlsym(duk_context *ctx)
     return 1;
 }
 
-typedef struct {
-  char* buf;
-  uint32_t len;
-} duk_args;
-
-static int do_duk(void *callargs)
+static void do_duk(char *buf, uint32_t len)
 {
-  duk_args* args = (duk_args*)callargs;
   duk_context *ctx = duk_create_heap(NULL, NULL, NULL, NULL, native_fatal);
 
   // globals
@@ -166,7 +156,7 @@ static int do_duk(void *callargs)
 
   // eval
 
-  duk_int_t rc = duk_peval_lstring(ctx, args->buf, args->len);
+  duk_int_t rc = duk_peval_lstring(ctx, buf, len);
   if (rc != 0)
   {
       ksceKernelPrintf("eval failed: %s\n", duk_safe_to_stacktrace(ctx, -1));
@@ -238,12 +228,7 @@ static int net_thread(SceSize args, void *argp) {
             }
             while (n > 0);
 
-            // duktape requires bigger stack
-            duk_args args = {
-                .buf = buf,
-                .len = total
-            };
-            ksceKernelRunWithStack(0x8000, do_duk, &args);
+            do_duk(buf, total);
 
             free(buf);
 
@@ -265,13 +250,13 @@ int module_start(SceSize args, void *argp)
 
   ksceKernelPrintf("QUACK!\n");
 
-  fixup_netrecv_bug();
-
+  if (fixup_netrecv_bug() < 0) return SCE_KERNEL_START_FAILED;
   if (initCompat() < 0) return SCE_KERNEL_START_FAILED;
+  if (init_memfuncs_module() < 0) return SCE_KERNEL_START_FAILED;
 
   ksceKernelPrintf("QUACK! QUACK!\n");
 
-  g_thread_uid = ksceKernelCreateThread("quack_net_thread", net_thread, 0x3C, 0x1000, 0, 0x10000, 0);
+  g_thread_uid = ksceKernelCreateThread("quack_net_thread", net_thread, 0x3C, 0x8000, 0, 0x10000, 0);
   if (g_thread_uid < 0)
         return SCE_KERNEL_START_NO_RESIDENT;
 
