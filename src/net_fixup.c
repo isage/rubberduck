@@ -15,10 +15,7 @@
 #include <psp2kern/kernel/sysclib.h>
 #include <taihen.h>
 
-int module_get_export_func(SceUID pid, const char *modname, uint32_t libnid, uint32_t funcnid, uintptr_t *func);
-
-#define GetExport(modname, lib_nid, func_nid, func)                                                               \
-  module_get_export_func(KERNEL_PID, modname, lib_nid, func_nid, (uintptr_t *)func)
+#include "taihen_extra.h"
 
 const uint8_t orig_code[] = {
 	0xC0, 0xEF, 0x10, 0x00, // vmov.i32	d16, #0

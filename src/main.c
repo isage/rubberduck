@@ -1,7 +1,6 @@
 #include <psp2kern/kernel/debug.h>
 #include <psp2kern/kernel/modulemgr.h>
 #include <psp2kern/netps.h>
-#include <taihen.h>
 
 #include <ffi.h>
 #include "compat.h"
@@ -9,10 +8,7 @@
 #include "net_fixup.h"
 #include "duktape/duktape.h"
 
-int module_get_export_func(SceUID pid, const char *modname, uint32_t libnid, uint32_t funcnid, uintptr_t *func);
-#define GetExport(modname, lib_nid, func_nid, func)                                                               \
-  module_get_export_func(KERNEL_PID, modname, lib_nid, func_nid, (uintptr_t *)func)
-
+#include "taihen_extra.h"
 
 // BINDINGS
 
