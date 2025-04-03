@@ -14,7 +14,7 @@ extern char _safeRWRegionEnd;
 
 /**
  * @brief Read value from an arbitrary (and potentially invalid) address
- * 
+ *
  * @param addr  Address from which value should be read
  * @param val   Receives the value read from @p addr
  * @returns 0 on success, <0 on error
@@ -27,7 +27,7 @@ extern int safeRead32(uint32_t *addr, uint32_t *val);
 
 /**
  * @brief Write value at an arbitrary (and potentially invalid) address
- * 
+ *
  * @param addr  Address where value should be written
  * @param val   Value to write at @p addr
  * @returns 0 on success, <0 on error
