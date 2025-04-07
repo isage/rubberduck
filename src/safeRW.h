@@ -21,9 +21,9 @@ extern char _safeRWRegionEnd;
  *
  * @warning In case of error, no value is written to @p{val}!
  */
-extern int safeRead8(uint8_t *addr, uint8_t *val);
-extern int safeRead16(uint16_t *addr, uint16_t *val);
-extern int safeRead32(uint32_t *addr, uint32_t *val);
+extern int safeRead8(uint8_t* addr, uint8_t* val);
+extern int safeRead16(uint16_t* addr, uint16_t* val);
+extern int safeRead32(uint32_t* addr, uint32_t* val);
 
 /**
  * @brief Write value at an arbitrary (and potentially invalid) address
@@ -32,6 +32,6 @@ extern int safeRead32(uint32_t *addr, uint32_t *val);
  * @param val   Value to write at @p addr
  * @returns 0 on success, <0 on error
  */
-extern int safeWrite8(uint8_t *addr, uint8_t val);
-extern int safeWrite16(uint16_t *addr, uint16_t val);
-extern int safeWrite32(uint32_t *addr, uint32_t val);
+extern int safeWrite8(uint8_t* addr, uint8_t val);
+extern int safeWrite16(uint16_t* addr, uint16_t val);
+extern int safeWrite32(uint32_t* addr, uint32_t val);

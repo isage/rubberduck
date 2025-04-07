@@ -15,6 +15,7 @@ add_executable(${PROJECT_NAME}
   src/main.c
   src/compat.c
   src/memfuncs.c
+  src/primitives.c
   src/net_fixup.c
   src/safeRW.S
   src/duktape/duktape.c

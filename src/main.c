@@ -2,6 +2,7 @@
 #include "duktape/duktape.h"
 #include "memfuncs.h"
 #include "net_fixup.h"
+#include "primitives.h"
 #include "taihen_extra.h"
 
 #include <ffi.h>
@@ -154,6 +155,7 @@ static void do_duk(char* buf, uint32_t len)
   duk_put_global_string(ctx, "resolveExport");
 
   init_memfuncs(ctx);
+  init_primitives(ctx);
 
   // eval
 

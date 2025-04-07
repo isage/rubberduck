@@ -39,6 +39,60 @@ Reads uint32/uint16/uint8 values from memory address into typed array
 `write32(<addr>)`  
 Writes uint32/uint16/uint8 typed array values to memory address
 
+### u32/u16/u8
+`new u32(<name>)`  
+Creates new typed variable/field with name <name>
+
+#### Properties
+`u32.name`  
+Field name
+
+`u32.value`  
+Field value
+
+#### Methods
+`u32arr.prototype.readFromMemory(<addr>)`  
+Reads and fills value from memory  
+
+### u32arr/u16arr/u8arr
+`new u32arr(<name>, <size>)`  
+Creates new typed array/field with name <name> and <size> elements  
+
+#### Properties
+`u32arr.name`  
+Array name
+
+`u32arr.value`  
+JS array with values
+
+`u32arr.length`  
+Size in elements
+
+`u32arr.size`  
+Size in bytes
+
+#### Methods
+`u32arr.prototype.readFromMemory(<addr>)`  
+Reads and fills array from memory  
+
+`u32arr.prototype.print(<offset>)`  
+Dumps array values  
+
+### Struct
+`new Struct(<array of fields>)`  
+Creates new structure with fields <array of fields> (see u32/u32arr, etc.)
+
+#### Properties
+`Struct.fields`  
+JS array with fields
+
+#### Methods
+`Struct.prototype.readFromMemory(<addr>)`  
+Reads and fills array from memory  
+
+`Struct.prototype.dump()`  
+Dumps struct  
+
 
 ## License
 MIT, see LICENSE.md
