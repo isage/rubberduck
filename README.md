@@ -43,6 +43,12 @@ Writes uint32/uint16/uint8 typed array values to memory address
 `new u32(<name>)`  
 Creates new typed variable/field with name <name>
 
+`u32.prototype.readFromMemory(<addr>)`  
+Reads value from memory  
+
+`u32.prototype.writeToMemory(<addr>)`  
+Writes value to memory  
+
 #### Properties
 `u32.name`  
 Field name
@@ -75,6 +81,9 @@ Size in bytes
 `u32arr.prototype.readFromMemory(<addr>)`  
 Reads and fills array from memory  
 
+`u32arr.prototype.writeToMemory(<addr>)`  
+Writes array to memory  
+
 `u32arr.prototype.print(<offset>)`  
 Dumps array values  
 
@@ -88,7 +97,13 @@ JS array with fields
 
 #### Methods
 `Struct.prototype.readFromMemory(<addr>)`  
-Reads and fills array from memory  
+Reads and fills struct from memory  
+
+`Struct.prototype.writeToMemory(<addr>)`  
+Writes struct to memory  
+
+`Struct.prototype.set(<name>,<value>)`  
+Set structure field value  
 
 `Struct.prototype.dump()`  
 Dumps struct  
