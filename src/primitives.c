@@ -22,6 +22,9 @@ duk_ret_t duk_u32_create(duk_context* ctx)
   duk_push_uint(ctx, 0);
   duk_put_prop_string(ctx, -2, "value");
 
+  duk_push_boolean(ctx, 1);
+  duk_put_prop_string(ctx, -2, "_primitive");
+
   return 0;
 }
 
@@ -40,6 +43,20 @@ duk_ret_t duk_u32_read(duk_context* ctx)
 
   duk_push_uint(ctx, value);
   return 1;
+}
+
+duk_ret_t duk_u32_write(duk_context* ctx)
+{
+  uint32_t* ptr = (uint32_t*)duk_to_uint32(ctx, 0);
+  duk_push_this(ctx);
+  duk_get_prop_string(ctx, -1, "value");
+
+  uint32_t value = duk_to_uint32(ctx, -1);
+  if (safeWrite32(ptr, value) < 0)
+  {
+    return duk_eval_error(ctx, "write32 @ %p failed", ptr);
+  }
+  return 0;
 }
 
 duk_ret_t duk_u32_set(duk_context* ctx)
@@ -70,6 +87,9 @@ duk_ret_t duk_u16_create(duk_context* ctx)
   duk_push_uint(ctx, 0);
   duk_put_prop_string(ctx, -2, "value");
 
+  duk_push_boolean(ctx, 1);
+  duk_put_prop_string(ctx, -2, "_primitive");
+
   return 0;
 }
 
@@ -88,6 +108,20 @@ duk_ret_t duk_u16_read(duk_context* ctx)
 
   duk_push_uint(ctx, value);
   return 1;
+}
+
+duk_ret_t duk_u16_write(duk_context* ctx)
+{
+  uint16_t* ptr = (uint16_t*)duk_to_uint32(ctx, 0);
+  duk_push_this(ctx);
+  duk_get_prop_string(ctx, -1, "value");
+
+  uint16_t value = (uint16_t)duk_to_uint32(ctx, -1);
+  if (safeWrite16(ptr, value) < 0)
+  {
+    return duk_eval_error(ctx, "write16 @ %p failed", ptr);
+  }
+  return 0;
 }
 
 duk_ret_t duk_u16_set(duk_context* ctx)
@@ -118,6 +152,9 @@ duk_ret_t duk_u8_create(duk_context* ctx)
   duk_push_uint(ctx, 0);
   duk_put_prop_string(ctx, -2, "value");
 
+  duk_push_boolean(ctx, 1);
+  duk_put_prop_string(ctx, -2, "_primitive");
+
   return 0;
 }
 
@@ -136,6 +173,20 @@ duk_ret_t duk_u8_read(duk_context* ctx)
 
   duk_push_uint(ctx, value);
   return 1;
+}
+
+duk_ret_t duk_u8_write(duk_context* ctx)
+{
+  uint8_t* ptr = (uint8_t*)duk_to_uint32(ctx, 0);
+  duk_push_this(ctx);
+  duk_get_prop_string(ctx, -1, "value");
+
+  uint8_t value = (uint8_t)duk_to_uint32(ctx, -1);
+  if (safeWrite8(ptr, value) < 0)
+  {
+    return duk_eval_error(ctx, "write32 @ %p failed", ptr);
+  }
+  return 0;
 }
 
 duk_ret_t duk_u8_set(duk_context* ctx)
@@ -198,6 +249,34 @@ duk_ret_t duk_u32arr_read(duk_context* ctx)
 
     duk_push_uint(ctx, value);      // [ptr obj value num]
     duk_put_prop_index(ctx, -2, i); // [ptr obj value]
+    ptr++;
+  }
+
+  return 0;
+}
+
+duk_ret_t duk_u32arr_write(duk_context* ctx)
+{
+  uint32_t* ptr = (uint32_t*)duk_to_uint32(ctx, 0);
+
+  duk_push_this(ctx);                     // [ptr obj]
+  duk_get_prop_string(ctx, -1, "length"); // [ptr obj length]
+  uint32_t length = duk_to_uint32(ctx, -1);
+  duk_pop(ctx); // [ptr obj]
+
+  duk_get_prop_string(ctx, -1, "value"); // [ptr obj value]
+
+  for (int i = 0; i < length; i++)
+  {
+    duk_get_prop_index(ctx, -1, i); // [ptr obj value elem]
+    uint32_t value = duk_to_uint32(ctx, -1);
+    duk_pop(ctx); // [ptr obj value]
+
+    if (safeWrite32(ptr, value) < 0)
+    {
+      return duk_eval_error(ctx, "write32 @ %p failed", ptr);
+    }
+
     ptr++;
   }
 
@@ -329,6 +408,34 @@ duk_ret_t duk_u16arr_read(duk_context* ctx)
   return 0;
 }
 
+duk_ret_t duk_u16arr_write(duk_context* ctx)
+{
+  uint16_t* ptr = (uint16_t*)duk_to_uint32(ctx, 0);
+
+  duk_push_this(ctx);                     // [ptr obj]
+  duk_get_prop_string(ctx, -1, "length"); // [ptr obj length]
+  uint32_t length = duk_to_uint32(ctx, -1);
+  duk_pop(ctx); // [ptr obj]
+
+  duk_get_prop_string(ctx, -1, "value"); // [ptr obj value]
+
+  for (int i = 0; i < length; i++)
+  {
+    duk_get_prop_index(ctx, -1, i); // [ptr obj value elem]
+    uint16_t value = duk_to_uint16(ctx, -1);
+    duk_pop(ctx); // [ptr obj value]
+
+    if (safeWrite16(ptr, value) < 0)
+    {
+      return duk_eval_error(ctx, "write16 @ %p failed", ptr);
+    }
+
+    ptr++;
+  }
+
+  return 0;
+}
+
 duk_ret_t duk_u16arr_print(duk_context* ctx)
 {
   uint32_t offset = duk_to_uint32(ctx, 0);
@@ -454,6 +561,34 @@ duk_ret_t duk_u8arr_read(duk_context* ctx)
   return 0;
 }
 
+duk_ret_t duk_u8arr_write(duk_context* ctx)
+{
+  uint8_t* ptr = (uint8_t*)duk_to_uint32(ctx, 0);
+
+  duk_push_this(ctx);                     // [ptr obj]
+  duk_get_prop_string(ctx, -1, "length"); // [ptr obj length]
+  uint32_t length = duk_to_uint32(ctx, -1);
+  duk_pop(ctx); // [ptr obj]
+
+  duk_get_prop_string(ctx, -1, "value"); // [ptr obj value]
+
+  for (int i = 0; i < length; i++)
+  {
+    duk_get_prop_index(ctx, -1, i); // [ptr obj value elem]
+    uint8_t value = (uint8_t)duk_to_uint16(ctx, -1);
+    duk_pop(ctx); // [ptr obj value]
+
+    if (safeWrite8(ptr, value) < 0)
+    {
+      return duk_eval_error(ctx, "write8 @ %p failed", ptr);
+    }
+
+    ptr++;
+  }
+
+  return 0;
+}
+
 duk_ret_t duk_u8arr_print(duk_context* ctx)
 {
   uint32_t offset = duk_to_uint32(ctx, 0);
@@ -532,10 +667,33 @@ duk_ret_t duk_struct_create(duk_context* ctx)
     return DUK_RET_TYPE_ERROR;
   }
 
+  uint32_t struct_size = 0;
+
+  duk_size_t n = duk_get_length(ctx, 0);
+  for (duk_size_t i = 0; i < n; i++)
+  {
+    duk_get_prop_index(ctx, 0, i); // [arr field]
+    if (duk_has_prop_string(ctx, -1, "size"))
+    {
+      duk_get_prop_string(ctx, -1, "size");  // [arr field size]
+      struct_size += duk_to_uint32(ctx, -1); // [arr field size]
+      duk_pop_2(ctx);                        // [arr]
+    }
+    else
+    {
+      // not a primitive
+      return DUK_RET_TYPE_ERROR;
+    }
+  }
+
   duk_push_this(ctx); // [arr this]
 
-  duk_dup(ctx, 0);                        // [arr this arr]
-  duk_put_prop_string(ctx, -2, "fields"); // [arr this]
+  duk_dup(ctx, 0);                         // [arr this arr]
+  duk_put_prop_string(ctx, -2, "fields");  // [arr this]
+  duk_push_uint(ctx, struct_size);         // [arr this size]
+  duk_put_prop_string(ctx, -2, "size");    // [arr this]
+  duk_push_boolean(ctx, 1);                // [arr this 1]
+  duk_put_prop_string(ctx, -2, "_struct"); // [arr this]
 
   return 0;
 }
@@ -559,6 +717,30 @@ duk_ret_t duk_struct_read(duk_context* ctx)
     duk_push_uint(ctx, (uint32_t)ptr);      // [... fields field readFromMemory ptr]
     duk_call_prop(ctx, -3, 1);              // [... fields field ret]
     duk_pop_2(ctx);                         // [... fields]
+    ptr += size;
+  }
+  return 0;
+}
+
+duk_ret_t duk_struct_write(duk_context* ctx)
+{
+  uint8_t* ptr = (uint8_t*)duk_to_uint32(ctx, 0);
+
+  duk_push_this(ctx);
+  duk_get_prop_string(ctx, -1, "fields"); // [... fields]
+  duk_size_t n = duk_get_length(ctx, -1);
+  for (duk_size_t i = 0; i < n; i++)
+  {
+    duk_get_prop_index(ctx, -1, i); // [... fields field]
+
+    duk_get_prop_string(ctx, -1, "size"); // [... fields field size]
+    uint32_t size = duk_to_uint32(ctx, -1);
+    duk_pop(ctx); // [... fields field]
+
+    duk_push_string(ctx, "writeToMemory"); // [... fields field writeToMemory]
+    duk_push_uint(ctx, (uint32_t)ptr);     // [... fields field writeToMemory ptr]
+    duk_call_prop(ctx, -3, 1);             // [... fields field ret]
+    duk_pop_2(ctx);                        // [... fields]
     ptr += size;
   }
   return 0;
@@ -651,6 +833,8 @@ void init_primitives(duk_context* ctx)
   duk_push_object(ctx);
   duk_push_c_function(ctx, duk_u32_read, 1);
   duk_put_prop_string(ctx, -2, "readFromMemory");
+  duk_push_c_function(ctx, duk_u32_write, 1);
+  duk_put_prop_string(ctx, -2, "writeToMemory");
   duk_push_c_function(ctx, duk_u32_set, 1);
   duk_put_prop_string(ctx, -2, "set");
   duk_put_prop_string(ctx, -2, "prototype");
@@ -660,6 +844,8 @@ void init_primitives(duk_context* ctx)
   duk_push_object(ctx);
   duk_push_c_function(ctx, duk_u16_read, 1);
   duk_put_prop_string(ctx, -2, "readFromMemory");
+  duk_push_c_function(ctx, duk_u16_write, 1);
+  duk_put_prop_string(ctx, -2, "writeToMemory");
   duk_push_c_function(ctx, duk_u16_set, 1);
   duk_put_prop_string(ctx, -2, "set");
   duk_put_prop_string(ctx, -2, "prototype");
@@ -669,6 +855,8 @@ void init_primitives(duk_context* ctx)
   duk_push_object(ctx);
   duk_push_c_function(ctx, duk_u8_read, 1);
   duk_put_prop_string(ctx, -2, "readFromMemory");
+  duk_push_c_function(ctx, duk_u8_write, 1);
+  duk_put_prop_string(ctx, -2, "writeToMemory");
   duk_push_c_function(ctx, duk_u8_set, 1);
   duk_put_prop_string(ctx, -2, "set");
   duk_put_prop_string(ctx, -2, "prototype");
@@ -678,6 +866,8 @@ void init_primitives(duk_context* ctx)
   duk_push_object(ctx);
   duk_push_c_function(ctx, duk_u32arr_read, 1);
   duk_put_prop_string(ctx, -2, "readFromMemory");
+  duk_push_c_function(ctx, duk_u32arr_write, 1);
+  duk_put_prop_string(ctx, -2, "writeToMemory");
   duk_push_c_function(ctx, duk_u32arr_print, 1);
   duk_put_prop_string(ctx, -2, "print");
   duk_push_c_function(ctx, duk_u32arr_set, 1);
@@ -689,6 +879,8 @@ void init_primitives(duk_context* ctx)
   duk_push_object(ctx);
   duk_push_c_function(ctx, duk_u16arr_read, 1);
   duk_put_prop_string(ctx, -2, "readFromMemory");
+  duk_push_c_function(ctx, duk_u16arr_write, 1);
+  duk_put_prop_string(ctx, -2, "writeToMemory");
   duk_push_c_function(ctx, duk_u16arr_print, 1);
   duk_put_prop_string(ctx, -2, "print");
   duk_put_prop_string(ctx, -2, "prototype");
@@ -698,6 +890,8 @@ void init_primitives(duk_context* ctx)
   duk_push_object(ctx);
   duk_push_c_function(ctx, duk_u8arr_read, 1);
   duk_put_prop_string(ctx, -2, "readFromMemory");
+  duk_push_c_function(ctx, duk_u8arr_write, 1);
+  duk_put_prop_string(ctx, -2, "writeToMemory");
   duk_push_c_function(ctx, duk_u8arr_print, 1);
   duk_put_prop_string(ctx, -2, "print");
   duk_put_prop_string(ctx, -2, "prototype");
@@ -707,6 +901,8 @@ void init_primitives(duk_context* ctx)
   duk_push_object(ctx);
   duk_push_c_function(ctx, duk_struct_read, 1);
   duk_put_prop_string(ctx, -2, "readFromMemory");
+  duk_push_c_function(ctx, duk_struct_write, 1);
+  duk_put_prop_string(ctx, -2, "writeToMemory");
   duk_push_c_function(ctx, duk_struct_dump, 0);
   duk_put_prop_string(ctx, -2, "dump");
   duk_push_c_function(ctx, duk_struct_set, 2);

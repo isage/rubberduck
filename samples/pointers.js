@@ -19,6 +19,14 @@ var ret = ksceKernelGetMemblockBase(block, base);
 ksceKernelPrintf('ret= 0x%08X\n', ret);
 ksceKernelPrintf('ptr= 0x%08X\n', base[0]);
 
+// use primitive objects to simulate pointer
+// priimitive objects are always passed to called function as pointer to it's data
+var base2 = new u32();
+
+var ret = ksceKernelGetMemblockBase(block, base2);
+ksceKernelPrintf('ret= 0x%08X\n', ret);
+ksceKernelPrintf('ptr= 0x%08X\n', base2.value);
+
 // direct memory access using single values
 write32(base[0], 0xDEADBABE);
 ksceKernelPrintf('value= 0x%08X\n', read32(base[0]));

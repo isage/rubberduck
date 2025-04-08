@@ -37,6 +37,10 @@ static duk_ret_t native_print(duk_context* ctx)
 static duk_ret_t duk_dlcall_wrapper(duk_context* ctx)
 {
   int argn = duk_get_top(ctx);
+  if (argn > 16)
+  {
+    return DUK_RET_EVAL_ERROR;
+  }
 
   duk_push_this(ctx);
   duk_push_current_function(ctx);
@@ -52,6 +56,8 @@ static duk_ret_t duk_dlcall_wrapper(duk_context* ctx)
 
   uint32_t intvars[16];
   char* charvars[16];
+  uint8_t* buffers[16] = {0};
+  uint8_t* pointer_vars[16];
 
   for (int i = 0; i < argn; ++i)
   {
@@ -76,13 +82,50 @@ static duk_ret_t duk_dlcall_wrapper(duk_context* ctx)
         }
         else if (duk_has_prop_string(ctx, i, "_struct"))
         {
-          // TODO
+          // get total buffer size from struct size
+          duk_get_prop_string(ctx, i, "size");
+          uint32_t size = duk_to_uint32(ctx, -1);
+          duk_pop(ctx);
+          // malloc buffer
+          buffers[i] = malloc(size);
+
+          // write structure to buffer
+          duk_push_string(ctx, "writeToMemory");    // [... fields field readFromMemory]
+          duk_push_uint(ctx, (uint32_t)buffers[i]); // [... fields field readFromMemory ptr]
+          duk_call_prop(ctx, i, 1);                 // [... fields field ret]
+          duk_pop(ctx);                             // [... fields field]
+
+          // pass pointer to buffer
+          args[i]    = &ffi_type_pointer;
+          intvars[i] = (uint32_t)buffers[i];
+          values[i]  = &(intvars[i]);
+        }
+        else if (duk_has_prop_string(ctx, i, "_primitive"))
+        {
+          // pass pointer to var
+          args[i] = &ffi_type_pointer;
+
+          // write value to buffer
+          duk_push_string(ctx, "writeToMemory");     // [... fields field readFromMemory]
+          duk_push_uint(ctx, (uint32_t)&intvars[i]); // [... fields field readFromMemory ptr]
+          duk_call_prop(ctx, i, 1);                  // [... fields field ret]
+          duk_pop(ctx);                              // [... fields field]
+
+          pointer_vars[i] = (uint8_t*)&intvars[i];
+          values[i]       = &(pointer_vars[i]);
         }
         break;
       default:
         free(args);
         free(values);
-
+        // free struct buffers
+        for (int i = 0; i < 16; ++i)
+        {
+          if (buffers[i] != NULL)
+          {
+            free(buffers[i]);
+          }
+        }
         return DUK_RET_TYPE_ERROR;
         break;
     }
@@ -101,11 +144,26 @@ static duk_ret_t duk_dlcall_wrapper(duk_context* ctx)
         case DUK_TYPE_OBJECT:
           if (duk_is_buffer_data(ctx, i))
           {
-            // we already passing a pointer, no need to update it?
+            // we already passing a pointer, no need to update it
           }
           else if (duk_has_prop_string(ctx, i, "_struct"))
           {
-            // TODO?
+            // re-read structure from buffer
+            duk_push_string(ctx, "readFromMemory");   // [... fields field readFromMemory]
+            duk_push_uint(ctx, (uint32_t)buffers[i]); // [... fields field readFromMemory ptr]
+            duk_call_prop(ctx, i, 1);                 // [... fields field ret]
+            duk_pop(ctx);                             // [... fields field]
+          }
+          else if (duk_has_prop_string(ctx, i, "_primitive"))
+          {
+            // pass pointer to var
+            args[i] = &ffi_type_pointer;
+
+            // write value to buffer
+            duk_push_string(ctx, "readFromMemory");    // [... fields field readFromMemory]
+            duk_push_uint(ctx, (uint32_t)&intvars[i]); // [... fields field readFromMemory ptr]
+            duk_call_prop(ctx, i, 1);                  // [... fields field ret]
+            duk_pop(ctx);                              // [... fields field]
           }
           break;
         default:
@@ -115,11 +173,27 @@ static duk_ret_t duk_dlcall_wrapper(duk_context* ctx)
 
     free(args);
     free(values);
+    // free struct buffers
+    for (int i = 0; i < 16; ++i)
+    {
+      if (buffers[i] != NULL)
+      {
+        free(buffers[i]);
+      }
+    }
     return 1;
   }
 
   free(args);
   free(values);
+  // free struct buffers
+  for (int i = 0; i < 16; ++i)
+  {
+    if (buffers[i] != NULL)
+    {
+      free(buffers[i]);
+    }
+  }
 
   return DUK_RET_TYPE_ERROR;
 }
