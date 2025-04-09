@@ -105,6 +105,9 @@ Writes struct to memory
 `Struct.prototype.set(<name>,<value>)`  
 Set structure field value  
 
+`Struct.prototype.get(<name>)`  
+Get structure field  
+
 `Struct.prototype.dump()`  
 Dumps struct  
 

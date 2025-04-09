@@ -34,3 +34,5 @@ sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG);
 var ret = sceCtrlPeekBufferPositive(0, ctrldata, 1);
 printf('ret = 0x%08X\n', ret);
 ctrldata.dump();
+
+printf("buttons: 0x%08x\n", ctrldata.get("buttons").value);

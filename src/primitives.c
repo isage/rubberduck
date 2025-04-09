@@ -827,6 +827,31 @@ duk_ret_t duk_struct_set(duk_context* ctx)
   return 0;
 }
 
+duk_ret_t duk_struct_get(duk_context* ctx)
+{
+  const char* nameset = duk_to_string(ctx, 0);
+  duk_push_this(ctx);
+  duk_get_prop_string(ctx, -1, "fields"); // [... fields]
+  duk_size_t n = duk_get_length(ctx, -1);
+
+  for (duk_size_t i = 0; i < n; i++)
+  {
+    duk_get_prop_index(ctx, -1, i); // [... fields field]
+
+    duk_get_prop_string(ctx, -1, "name"); // [... fields field name]
+    const char* name = duk_to_string(ctx, -1);
+    duk_pop(ctx); // [... fields field]
+
+    if (strcmp(nameset, name) == 0)
+    {
+        return 1; // field is on stack
+    }
+
+    duk_pop(ctx); // [... fields]
+  }
+  return 0;
+}
+
 void init_primitives(duk_context* ctx)
 {
   duk_push_c_function(ctx, duk_u32_create, 1);
@@ -907,6 +932,8 @@ void init_primitives(duk_context* ctx)
   duk_put_prop_string(ctx, -2, "dump");
   duk_push_c_function(ctx, duk_struct_set, 2);
   duk_put_prop_string(ctx, -2, "set");
+  duk_push_c_function(ctx, duk_struct_get, 1);
+  duk_put_prop_string(ctx, -2, "get");
   duk_put_prop_string(ctx, -2, "prototype");
   duk_put_global_string(ctx, "Struct");
 }
