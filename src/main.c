@@ -307,13 +307,14 @@ static int net_thread(SceSize args, void* argp)
         }
       } while (n > 0);
 
+      ksceNetSocketClose(client_sockfd);
+
       do_duk(buf, total);
 
       free(buf);
 
       // shrink heap
       shrink_heap();
-      ksceNetSocketClose(client_sockfd);
     }
 
     ksceNetSocketClose(server_sockfd);
