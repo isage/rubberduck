@@ -68,6 +68,11 @@ static duk_ret_t duk_dlcall_wrapper(duk_context* ctx)
         intvars[i] = duk_to_uint32(ctx, i);
         values[i]  = &(intvars[i]);
         break;
+      case DUK_TYPE_POINTER:
+        args[i]         = &ffi_type_pointer;
+        pointer_vars[i] = duk_to_pointer(ctx, i);
+        values[i]       = &(pointer_vars[i]);
+        break;
       case DUK_TYPE_STRING:
         args[i]     = &ffi_type_pointer;
         charvars[i] = (char*)duk_get_string(ctx, i);
