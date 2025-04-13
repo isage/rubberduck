@@ -3,6 +3,7 @@
 #include "memfuncs.h"
 #include "net_fixup.h"
 #include "primitives.h"
+#include "safeRW.h"
 #include "taihen_extra.h"
 
 #include <ffi.h>
@@ -328,6 +329,34 @@ static int net_thread(SceSize args, void* argp)
   return 0;
 }
 
+// safeRW initialization
+int initSafeRW(void)
+{
+  int (*excpmgr_set_memaccesserror_area)(void* start, void* end);
+
+  int res = GetExport("SceExcpmgr", 0x4CA0FDD5u, 0xC45C0D3Du, &excpmgr_set_memaccesserror_area);
+  if (res < 0)
+  {
+    int old_res = res;
+    res = GetExport("SceExcpmgr", 0x1496A5B5u, 0x44CE04B8u, &excpmgr_set_memaccesserror_area);
+    if (res < 0)
+    {
+      ksceKernelPrintf("%s: GetExport(Old NID) failed (0x%08X)\n", __func__, old_res);
+      ksceKernelPrintf("%s: GetExport(New NID) failed (0x%08X)\n", __func__, res);
+      return res;
+    }
+  }
+
+  res = excpmgr_set_memaccesserror_area(&_safeRWRegionStart, &_safeRWRegionEnd);
+  if (res < 0)
+  {
+    ksceKernelPrintf("%s: excpmgr_set_memaccesserror_area() failed (0x%08X)\n", __func__, res);
+    return res;
+  }
+
+  return 0;
+}
+
 // main
 void _start() __attribute__((weak, alias("module_start")));
 int module_start(SceSize args, void* argp)
@@ -339,7 +368,7 @@ int module_start(SceSize args, void* argp)
     return SCE_KERNEL_START_FAILED;
   if (initCompat() < 0)
     return SCE_KERNEL_START_FAILED;
-  if (init_memfuncs_module() < 0)
+  if (initSafeRW() < 0)
     return SCE_KERNEL_START_FAILED;
 
   ksceKernelPrintf("QUACK! QUACK!\n");
