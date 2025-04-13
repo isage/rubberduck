@@ -60,7 +60,7 @@ static int init_func()
 int fixup_netrecv_bug(void)
 {
   SceKernelModuleInfo netps_info;
-  SceUInt32 text_segidx = 0, text_base = 0, text_size = 0;
+  SceUInt32 text_base = 0, text_size = 0;
   SceUInt32* recvfrom_inner_addr = NULL;
   SceUID netps_id;
   SceInt32 res;
@@ -81,29 +81,11 @@ int fixup_netrecv_bug(void)
     ksceKernelPrintf("%s: sceKernelGetModuleInfo failed 0x%08X\n", __func__, res);
     return res;
   }
-  /*
-          for (int i = 0; i < 4; i++) {
-                  if (netps_info.segments[i].attr & SCE_KERNEL_SEGMENT_ATTR_TEXT) {
-                          text_base = netps_info.segments[i].vaddr;
-                          text_size = netps_info.segments[i].memsz;
-                          text_seg = i;
-                          ksceKernelPrintf("%s: SceNetPs text segment found at 0x%08X size 0x%08X (%u)\n",
-                                  __func__, text_base, text_size, text_seg);
-                          break;
-                  }
-          }
-  */
+
   text_base   = (SceUInt32)netps_info.segments[0].vaddr;
   text_size   = netps_info.segments[0].memsz;
-  text_segidx = 0;
-  ksceKernelPrintf("%s: SceNetPs text segment found at 0x%08X size 0x%08X (%u)\n", __func__, text_base, text_size,
-                   text_segidx);
-
-  if (text_base == 0)
-  {
-    ksceKernelPrintf("%s: SceNetPs text segment not found\n", __func__);
-    return -1;
-  }
+  /* no newline for now - we'll try to print pattern offset on same line */
+  ksceKernelPrintf("SceNetPs seg0 @ 0x%08X size 0x%X", text_base, text_size);
 
   // Search for pattern in SceNetPs text segment
   {
@@ -122,20 +104,20 @@ int fixup_netrecv_bug(void)
 
   if (!recvfrom_inner_addr)
   {
-    ksceKernelPrintf("%s: recvfrom_inner pattern not found\n", __func__);
+    ksceKernelPrintf("\n%s: recvfrom_inner pattern not found\n", __func__);
     return -1;
   }
 
-  ksceKernelPrintf("%s: recvfrom_inner pattern found at %p\n", __func__, recvfrom_inner_addr);
   uint32_t offset = (uint32_t)recvfrom_inner_addr - text_base;
+  ksceKernelPrintf(" - pattern @ +0x%X\n", offset);
 
-  g_netrecv_inject = taiInjectDataForKernel(0x10005, netps_id, text_segidx, offset, patched_code, sizeof(patched_code));
+  g_netrecv_inject = taiInjectDataForKernel(0x10005, netps_id, 0, offset, patched_code, sizeof(patched_code));
   if (g_netrecv_inject < 0)
   {
     ksceKernelPrintf("%s: taiInjectDataForKernel failed 0x%08X\n", __func__, g_netrecv_inject);
     return g_netrecv_inject;
   }
 
-  ksceKernelPrintf("%s: taiInjectDataForKernel OK => patch applied!\n", __func__, g_netrecv_inject);
+  ksceKernelPrintf("SceNetPs fix applied successfully!\n");
   return 0;
 }
