@@ -23,9 +23,15 @@ add_executable(${PROJECT_NAME}
   src/primitives.c
   src/net_fixup.c
   src/safeRW.S
+  src/builtin_bindings.c
   src/duktape/duktape.c
   src/jmp/setjmp.S
 )
+
+if (EXISTS "src/custom_bindings/custom_bindings.c")
+  message(STATUS "Custom bindings found and added to build")
+  target_sources(${PROJECT_NAME} PRIVATE src/custom_bindings/custom_bindings.c)
+endif()
 
 target_link_libraries(${PROJECT_NAME}
   ffi

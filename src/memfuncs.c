@@ -92,32 +92,6 @@ static duk_ret_t duk_writebuffer(duk_context* ctx)
   return 0;
 }
 
-int init_memfuncs_module(void)
-{
-  int (*excpmgr_set_memaccesserror_area)(void* start, void* end);
-
-  int res = GetExport("SceExcpmgr", 0x4CA0FDD5u, 0xC45C0D3Du, &excpmgr_set_memaccesserror_area);
-  if (res < 0)
-  {
-    ksceKernelPrintf("%s: GetExport(Old NID) failed (0x%08X)\n", __func__, res);
-    res = GetExport("SceExcpmgr", 0x1496A5B5u, 0x44CE04B8u, &excpmgr_set_memaccesserror_area);
-    if (res < 0)
-    {
-      ksceKernelPrintf("%s: GetExport(New NID) failed (0x%08X)\n", __func__, res);
-      return res;
-    }
-  }
-
-  res = excpmgr_set_memaccesserror_area(&_safeRWRegionStart, &_safeRWRegionEnd);
-  if (res < 0)
-  {
-    ksceKernelPrintf("%s: excpmgr_set_memaccesserror_area() failed (0x%08X)\n", __func__, res);
-    return res;
-  }
-
-  return 0;
-}
-
 void init_memfuncs(duk_context* ctx)
 {
   duk_push_c_function(ctx, duk_read32, 1);

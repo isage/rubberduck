@@ -844,7 +844,7 @@ duk_ret_t duk_struct_get(duk_context* ctx)
 
     if (strcmp(nameset, name) == 0)
     {
-        return 1; // field is on stack
+      return 1; // field is on stack
     }
 
     duk_pop(ctx); // [... fields]
