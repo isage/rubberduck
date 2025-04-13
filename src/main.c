@@ -8,6 +8,7 @@
 #include <ffi.h>
 #include <psp2kern/kernel/debug.h>
 #include <psp2kern/kernel/modulemgr.h>
+#include <psp2kern/kernel/threadmgr.h>
 #include <psp2kern/netps.h>
 
 // BINDINGS
@@ -309,6 +310,7 @@ static int net_thread(SceSize args, void* argp)
 
       ksceNetSocketClose(client_sockfd);
 
+      ksceKernelChangeThreadVfpException(SCE_KERNEL_VFP_EXCP_ALL, 0);
       do_duk(buf, total);
 
       free(buf);

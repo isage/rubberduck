@@ -5,9 +5,8 @@
 
 
 ## Building
-1. Install [vitasdk-softfp](https://github.com/vitasdk-softfp)
-2. Build and install [libffi port](https://github.com/isage/vita-packages-extra/tree/master/libffi) (`vita-makepkg && vdpm libffi-*-arm.tar.xz`)
-3. `cmake -B build && cmake --build build`
+1. Build and install [libffi port](https://github.com/isage/vita-packages-extra/tree/master/libffi) (`vita-makepkg && vdpm libffi-*-arm.tar.xz`)
+2. `cmake -B build && cmake --build build`
 
 ## Usage
 install skprx via taihen config (or load with any plugin loader)  
