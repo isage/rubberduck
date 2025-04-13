@@ -36022,8 +36022,11 @@ DUK_LOCAL duk_ret_t duk__error_getter_helper(duk_hthread *thr, duk_small_int_t o
 			duk_get_prop_index(thr, idx_td, (duk_uarridx_t) i);
 			duk_get_prop_index(thr, idx_td, (duk_uarridx_t) (i + 1));
 			d = duk_to_number_m1(thr);
-			pc = duk_double_to_int_t(DUK_FMOD(d, DUK_DOUBLE_2TO32));
-			flags = duk_double_to_uint_t(DUK_FLOOR(d / DUK_DOUBLE_2TO32));
+			if (!DUK_ISNAN(d))
+			{
+				pc = duk_double_to_int_t(DUK_FMOD(d, DUK_DOUBLE_2TO32));
+				flags = duk_double_to_uint_t(DUK_FLOOR(d / DUK_DOUBLE_2TO32));
+			}
 			t = (duk_small_int_t) duk_get_type(thr, -2);
 
 			if (t == DUK_TYPE_OBJECT || t == DUK_TYPE_LIGHTFUNC) {
