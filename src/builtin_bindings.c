@@ -1,4 +1,5 @@
 #include "builtin_bindings.h"
+
 #include "custom_bindings.h"
 #include "memfuncs.h"
 #include "primitives.h"
@@ -16,8 +17,8 @@ duk_double_t dummy_get_now(void) /* dummy function to please duktape */
 
 /* weak symbols used if no custom bindings are provided */
 struct native_fn_binding __attribute__((weak)) FUNCTION_BINDINGS[] = {};
-const int __attribute__((weak)) NUM_FUNCTION_BINDINGS = 0;
-void __attribute__((weak)) add_custom_bindings(duk_context *ctx) { }
+const int __attribute__((weak)) NUM_FUNCTION_BINDINGS              = 0;
+void __attribute__((weak)) add_custom_bindings(duk_context* ctx) { }
 
 static duk_ret_t native_print(duk_context* ctx)
 {
@@ -216,22 +217,22 @@ static duk_ret_t duk_dlsym(duk_context* ctx)
   return 1;
 }
 
-void init_builtins(duk_context *ctx)
+void init_builtins(duk_context* ctx)
 {
-	duk_push_c_function(ctx, native_print, DUK_VARARGS);
-	duk_put_global_string(ctx, "print");
-  
-	duk_push_c_function(ctx, duk_dlsym, 3);
-	duk_put_global_string(ctx, "resolveExport");
+  duk_push_c_function(ctx, native_print, DUK_VARARGS);
+  duk_put_global_string(ctx, "print");
 
-	/* add built-ins defined in other files */
-	init_memfuncs(ctx);
-	init_primitives(ctx);
+  duk_push_c_function(ctx, duk_dlsym, 3);
+  duk_put_global_string(ctx, "resolveExport");
+
+  /* add built-ins defined in other files */
+  init_memfuncs(ctx);
+  init_primitives(ctx);
 
   add_custom_bindings(ctx);
   for (int i = 0; i < NUM_FUNCTION_BINDINGS; i++)
   {
-    struct native_fn_binding *binding = &FUNCTION_BINDINGS[i];
+    struct native_fn_binding* binding = &FUNCTION_BINDINGS[i];
     duk_push_c_function(ctx, binding->func, binding->nargs);
     duk_put_global_string(ctx, binding->name);
   }

@@ -125,7 +125,7 @@ int initSafeRW(void)
   if (res < 0)
   {
     int old_res = res;
-    res = GetExport("SceExcpmgr", 0x1496A5B5u, 0x44CE04B8u, &excpmgr_set_memaccesserror_area);
+    res         = GetExport("SceExcpmgr", 0x1496A5B5u, 0x44CE04B8u, &excpmgr_set_memaccesserror_area);
     if (res < 0)
     {
       ksceKernelPrintf("%s: GetExport(Old NID) failed (0x%08X)\n", __func__, old_res);

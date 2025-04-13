@@ -82,8 +82,8 @@ int fixup_netrecv_bug(void)
     return res;
   }
 
-  text_base   = (SceUInt32)netps_info.segments[0].vaddr;
-  text_size   = netps_info.segments[0].memsz;
+  text_base = (SceUInt32)netps_info.segments[0].vaddr;
+  text_size = netps_info.segments[0].memsz;
   /* no newline for now - we'll try to print pattern offset on same line */
   ksceKernelPrintf("SceNetPs seg0 @ 0x%08X size 0x%X", text_base, text_size);
 

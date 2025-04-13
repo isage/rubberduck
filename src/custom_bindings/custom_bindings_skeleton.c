@@ -19,8 +19,8 @@ static duk_ret_t native_mul(duk_context* ctx)
 }
 
 struct native_fn_binding FUNCTION_BINDINGS[] = {
-	/* <JS name>, <native function>, <num of args / DUK_VARARGS> */
-	{"my_native_mul", native_mul, 1},
+    /* <JS name>, <native function>, <num of args / DUK_VARARGS> */
+    {"my_native_mul", native_mul, 1},
 };
 
 const int NUM_FUNCTION_BINDINGS = sizeof(FUNCTION_BINDINGS) / sizeof(FUNCTION_BINDINGS[0]);
