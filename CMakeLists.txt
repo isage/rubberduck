@@ -11,6 +11,11 @@ endif()
 project(rubberduck C ASM)
 include("${VITASDK}/share/vita.cmake" REQUIRED)
 
+set(COMPILE_COMMON_FLAGS "-Wl,-q -Wall -O2 -fno-inline")
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMPILE_COMMON_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMPILE_COMMON_FLAGS} -fno-rtti -fno-exceptions")
+
 add_executable(${PROJECT_NAME}
   src/main.c
   src/compat.c
@@ -30,29 +35,19 @@ target_link_libraries(${PROJECT_NAME}
   taihenForKernel_stub
   taihenModuleUtils_stub
   SceDebugForDriver_stub
-  SceSblAIMgrForDriver_stub
-  SceCtrlForDriver_stub
-  SceKernelSuspendForDriver_stub
   SceModulemgrForDriver_stub
-  SceSysclibForDriver_stub
   SceSysmemForDriver_stub
   SceThreadmgrForDriver_stub
-  SceUsbdForDriver_stub
-  SceUsbServForDriver_stub
   SceSysclibForDriver_stub
   SceNetPsForDriver_stub
 )
 
 set_target_properties(${PROJECT_NAME}
   PROPERTIES LINK_FLAGS "-nostdlib"
-)
-
-set_target_properties(${PROJECT_NAME}
-  PROPERTIES COMPILE_FLAGS "-fno-exceptions -mfloat-abi=soft"
+  COMPILE_FLAGS ""
 )
 
 vita_create_self(${PROJECT_NAME}.skprx ${PROJECT_NAME}
   CONFIG rubberduck.yml
   UNSAFE
 )
-
