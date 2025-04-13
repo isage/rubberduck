@@ -23,6 +23,7 @@ add_executable(${PROJECT_NAME}
   src/primitives.c
   src/net_fixup.c
   src/safeRW.S
+  src/builtin_bindings.c
   src/duktape/duktape.c
   src/jmp/setjmp.S
 )
