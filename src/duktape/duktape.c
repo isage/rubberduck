@@ -36009,9 +36009,9 @@ DUK_LOCAL duk_ret_t duk__error_getter_helper(duk_hthread *thr, duk_small_int_t o
 	if (duk_check_type(thr, idx_td, DUK_TYPE_OBJECT)) {
 		/* Current tracedata contains 2 entries per callstack entry. */
 		for (i = 0;; i += 2) {
-			duk_int_t pc;
-			duk_uint_t line;
-			duk_uint_t flags;
+			duk_int_t pc = 0;
+			duk_uint_t line = 0;
+			duk_uint_t flags = 0;
 			duk_double_t d;
 			const char *funcname;
 			const char *filename;
