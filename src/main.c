@@ -10,6 +10,23 @@
 #include <psp2kern/kernel/modulemgr.h>
 #include <psp2kern/netps.h>
 
+typedef enum SceKernelVfpExcpMask
+{
+  SCE_KERNEL_VFP_EXCP_IOC = 0x00000001,
+  SCE_KERNEL_VFP_EXCP_DZC = 0x00000002,
+  SCE_KERNEL_VFP_EXCP_OFC = 0x00000004,
+  SCE_KERNEL_VFP_EXCP_UFC = 0x00000008,
+  SCE_KERNEL_VFP_EXCP_IXC = 0x00000010,
+  SCE_KERNEL_VFP_EXCP_IDC = 0x00000080,
+  SCE_KERNEL_VFP_EXCP_QC  = 0x08000000
+} SceKernelVfpExcpMask;
+
+#define SCE_KERNEL_VFP_EXCP_ALL                                                                                        \
+  (SCE_KERNEL_VFP_EXCP_IOC | SCE_KERNEL_VFP_EXCP_DZC | SCE_KERNEL_VFP_EXCP_OFC | SCE_KERNEL_VFP_EXCP_UFC               \
+   | SCE_KERNEL_VFP_EXCP_IXC | SCE_KERNEL_VFP_EXCP_IDC | SCE_KERNEL_VFP_EXCP_QC)
+
+int (*sceKernelChangeThreadVfpExceptionForDriver)(SceUInt32 clear, SceUInt32 set);
+
 static void native_fatal(void* udata, const char* msg)
 {
   (void)udata;
@@ -102,6 +119,9 @@ static int net_thread(SceSize args, void* argp)
 
       ksceNetSocketClose(client_sockfd);
 
+      // clear vfp exceptions traps
+      sceKernelChangeThreadVfpExceptionForDriver(SCE_KERNEL_VFP_EXCP_ALL, 0);
+
       do_duk(buf, total);
 
       free(buf);
@@ -150,6 +170,12 @@ int module_start(SceSize args, void* argp)
 {
 
   ksceKernelPrintf("QUACK!\n");
+
+  if (GetExport("SceKernelThreadMgr", 0xE2C40624, 0xF4C81683, &sceKernelChangeThreadVfpExceptionForDriver) < 0)
+  {
+    ksceKernelPrintf("QUAAAAACK?! no vpf exceptions\n");
+    return SCE_KERNEL_START_FAILED;
+  }
 
   if (fixup_netrecv_bug() < 0)
     return SCE_KERNEL_START_FAILED;
