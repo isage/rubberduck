@@ -627,8 +627,21 @@ duk_ret_t duk_u8arr_print(duk_context* ctx)
     ksceKernelPrintf("\n");
   }
 
+  ksceKernelPrintf("as str:   ");
+  for (i = 0; i < n; i++)
+  {
+    duk_get_prop_index(ctx, -1, i); // [ptr obj value field]
+    uint8_t value = (uint8_t)duk_to_uint(ctx, -1);
+    duk_pop(ctx); // [ptr obj value]
+    if (value >=32 && value <= 126)
+        ksceKernelPrintf("%c", value);
+  }
+
+  ksceKernelPrintf("\n");
+
   return 0;
 }
+
 
 duk_ret_t duk_u8arr_set(duk_context* ctx)
 {
@@ -777,7 +790,14 @@ duk_ret_t duk_struct_dump(duk_context* ctx)
     duk_pop(ctx); // [... fields field]
 
     // if we have print in obj - use it, else use default
-    if (duk_has_prop_string(ctx, -1, "print"))
+    if (duk_has_prop_string(ctx, -1, "dump"))
+    {
+      duk_push_string(ctx, "dump"); // [... fields field print]
+      duk_push_uint(ctx, offset);    // [... fields field print offset]
+      duk_call_prop(ctx, -3, 1);     // [... fields field ret]
+      duk_pop(ctx);                  // [... fields field]
+    }
+    else if (duk_has_prop_string(ctx, -1, "print"))
     {
       duk_push_string(ctx, "print"); // [... fields field print]
       duk_push_uint(ctx, offset);    // [... fields field print offset]
