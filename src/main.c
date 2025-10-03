@@ -9,7 +9,7 @@
 #include <psp2kern/kernel/debug.h>
 #include <psp2kern/kernel/modulemgr.h>
 #include <psp2kern/netps.h>
-
+/*
 typedef enum SceKernelVfpExcpMask
 {
   SCE_KERNEL_VFP_EXCP_IOC = 0x00000001,
@@ -24,6 +24,8 @@ typedef enum SceKernelVfpExcpMask
 #define SCE_KERNEL_VFP_EXCP_ALL                                                                                        \
   (SCE_KERNEL_VFP_EXCP_IOC | SCE_KERNEL_VFP_EXCP_DZC | SCE_KERNEL_VFP_EXCP_OFC | SCE_KERNEL_VFP_EXCP_UFC               \
    | SCE_KERNEL_VFP_EXCP_IXC | SCE_KERNEL_VFP_EXCP_IDC | SCE_KERNEL_VFP_EXCP_QC)
+
+*/
 
 int (*sceKernelChangeThreadVfpExceptionForDriver)(SceUInt32 clear, SceUInt32 set);
 
@@ -195,6 +197,7 @@ int module_start(SceSize args, void* argp)
   return SCE_KERNEL_START_SUCCESS;
 }
 
+__attribute__((__used__))
 int module_stop(SceSize args, void* argp)
 {
   if (g_thread_uid >= 0)
